@@ -1,0 +1,11 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+Misc.pm
+Iterator-Misc.ppd
+Iterator-Misc-ppm.tar.gz
+t/doc.t
+t/igeometric.t
+t/ipermute.t
+META.yml                                 Module meta-data (added by MakeMaker)
