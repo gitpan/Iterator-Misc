@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 40;
+use Test::More tests => 37;
 use Iterator qw(:all);
 
 # Check that the documentation examples work.
@@ -233,26 +233,4 @@ begins_with ($@, q{Iterator is exhausted}, q{README iterator exception formatted
     };
     is ($@, q{}, q{$iter executed fine});
     is_deeply(\@vals, [6, 7, 8, 9], q{$iter returns what I said it would});
-}
-
-# imesh (3)
-{
-    my $iter;
-
-    @vals = ();
-    eval
-    {
-        my $i1 = ilist ('a', 'b', 'c');
-        my $i2 = ilist (1, 2, 3);
-        my $i3 = ilist ('rock', 'paper', 'scissors');
-        $iter = imesh ($i1, $i2, $i3);
-    };
-    is ($@, q{}, q{imesh iter iterator created fine});
-    eval
-    {
-        # $iter will return, in turn, 'a', 1, 'rock', 'b', 2, 'paper', 'c',...
-        push @vals, $iter->value for (1..7);
-    };
-    is ($@, q{}, q{imesh executed fine});
-    is_deeply(\@vals, ['a', 1, 'rock', 'b', 2, 'paper', 'c'], q{imesh returns what I said it would});
 }

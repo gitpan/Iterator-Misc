@@ -1,48 +1,15 @@
-Iterator version 0.01
-=====================
+Iterator::Misc version 0.02
+===========================
 
-This module is meant to be the definitive implementation of iterators,
-as popularized by Mark Jason Dominus's lectures and recent book
-(_Higher Order Perl_, Morgan Kauffman, 2005).
+This module provides various miscellaneous iterator functions
+which are not important enough to include in Iterator::Util.
 
 An "iterator" is an object, represented as a code block that generates
 the "next value" of a sequence, and generally implemented as a
-closure.  Iterator.pm provides a class that simplifies creation and
-use of these iterator objects, and provides many general-purpose
-iterator functions.
+closure. 
 
-EXAMPLES
+See the Iterator module for more information on Iterators.
 
-Synopsis:
-
-    $it = Iterator->new( sub { some code } );
-
-Simple "upto" counter (Dominus, p. 121):
-
-    sub upto
-    {
-        my ($m, $n) = @_;
-
-        return Iterator->new( sub {
-            return $m++  if $m <= $n;
-            Iterator::X::Am_Now_Exhausted->throw();
-        });
-    }
-
-    my $it = upto (3, 5);
-
-    $i = $it->value;     #  returns 3
-    $i = $it->value;     #  returns 4
-    $i = $it->value;     #  returns 5
-    $i = $it->value;     #  throws an Iterator::X::Exhausted exception.
-
-    $another_it = upto (7, 10);
-    while ($another_it->isnt_exhausted)
-    {
-        print $another_it->value, "\n";
-    }
-    # The above prints 7, 8, 9, 10 and throws no exceptions.
-    # Another call to $another_it->value would throw an exception.
 
 DEVELOPMENT STATE
 
@@ -68,7 +35,7 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  Exception::Class
+  Iterator
 
 COPYRIGHT AND LICENSE
 

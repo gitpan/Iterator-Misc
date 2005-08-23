@@ -8,14 +8,14 @@ Iterator::Misc - Miscellaneous iterator functions.
 
 =head1 VERSION
 
-This documentation describes version 0.01 of Iterator::Misc, August 18, 2005.
+This documentation describes version 0.02 of Iterator::Misc, August 23, 2005.
 
 =cut
 
 use strict;
 use warnings;
 package Iterator::Misc;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use base 'Exporter';
 use vars qw/@EXPORT @EXPORT_OK %EXPORT_TAGS/;
@@ -198,83 +198,6 @@ sub irand_nth
     });
 }
 
-# Function name: imesh / izip
-# Synopsis:      $iter = imesh ($iter1, $iter2, ...)
-# Description:   Merges other iterators together.
-# Created:       07/30/2005 by EJR
-# Parameters:    Any number of other iterators.
-# Returns:       Sequence iterator
-# Exceptions:    Iterator::X::Parameter_Error
-#                Iterator::X::Am_Now_Exhausted
-foreach my $sub (qw/imesh izip/)
-{
-    no strict 'refs';
-    *$sub = sub
-    {
-        use strict 'refs';
-
-        my @iterators = @_;
-        my $it_index  = 0;
-
-        foreach my $iter (@iterators)
-        {
-            Iterator::X::Parameter_Error->throw(
-                "Argument to $sub is not an iterator")
-                unless UNIVERSAL::isa($iter, 'Iterator');
-        }
-
-        return Iterator->new (sub
-        {
-            Iterator::is_done
-                if is_exhausted($iterators[$it_index]);
-
-            my $retval = $iterators[$it_index]->value();
-
-            if (++$it_index >= @iterators)
-            {
-                $it_index = 0;
-            }
-
-            return $retval;
-        });
-    };
-}
-
-# Function name: iuniq
-# Synopsis:      $iter = iuniq ($another_iterator);
-# Description:   Removes duplicate entries from an iterator.
-# Created:       07/30/2005 by EJR
-# Parameters:    Another iterator.
-# Returns:       Sequence iterator
-# Exceptions:    Iterator::X::Parameter_Error
-#                Iterator::X::Am_Now_Exhausted
-sub iuniq
-{
-    Iterator::X::Parameter_Error->throw ("Too few parameters to iuniq")
-        if @_ < 1;
-    Iterator::X::Parameter_Error->throw ("Too many parameters to iuniq")
-        if @_ > 1;
-
-    my $iter = shift;
-    Iterator::X::Parameter_Error->throw("Argument to iuniq is not an iterator")
-        unless UNIVERSAL::isa($iter, 'Iterator');
-
-    my %did_see;
-    return Iterator->new (sub
-    {
-        my $value;
-        while (1)
-        {
-            Iterator::is_done
-                if $iter->is_exhausted;
-
-            $value = $iter->value;
-            last if !$did_see{$value}++;
-        }
-        return $value;
-    });
-}
-
 
 1;
 __END__
@@ -298,13 +221,6 @@ __END__
 
  # Geometric sequence
  $iter = igeometric ($start, $end, $multiplier);
-
- # Mesh iterators together
- $iter = imesh ($iter, $iter, ...);
- $iter = izip  ($iter, $iter, ...);
-
- # Return each value of an iterator once
- $iter = iuniq ($another_iterator);
 
 =head1 DESCRIPTION
 
@@ -379,42 +295,6 @@ I<Examples:>
  $iter = igeometric (1, undef, 3);      # 1, 3, 9, 27, 81, ...
  $iter = igeometric (10, undef, 0.1);   # 10, 1, 0.1, 0.01, ...
 
-=item imesh
-
-=item izip
-
- $iter = imesh ($iter1, $iter2, ...);
-
-This iterator accepts any number of other iterators, and "meshes"
-their values together.  First it returns the first value of the first
-iterator, then the first value of the second iterator, and so on,
-until it has returned the first value of all of its iterator
-arguments.  Then it goes back and returns the second value of the
-first iterator, and so on.  It stops when any of its iterator
-arguments is exhausted.
-
-I<Example:>
-
- $i1 = ilist ('a', 'b', 'c');
- $i2 = ilist (1, 2, 3);
- $i3 = ilist ('rock', 'paper', 'scissors');
- $iter = imesh ($i1, $i2, $i3);
- # $iter will return, in turn, 'a', 1, 'rock', 'b', 2, 'paper', 'c',...
-
-C<izip> is a synonym for C<imesh>.
-
-=item iuniq
-
- $iter = iuniq ($another_iterator);
-
-Creates an iterator to return unique values from another iterator;
-weeds out duplicates.
-
-I<Example:>
-
- $iter = ilist (1, 2, 2, 3, 1, 4);
- $uniq = iuniq ($iter);            # returns 1, 2, 3, 4.
-
 =back
 
 =head1 EXPORTS
@@ -423,7 +303,7 @@ All function names are exported to the caller's namespace by default.
 
 =head1 DIAGNOSTICS
 
-Iterator::Util uses L<Exception::Class> objects for throwing
+Iterator::Misc uses L<Exception::Class> objects for throwing
 exceptions.  If you're not familiar with Exception::Class, don't
 worry; these exception objects work just like C<$@> does with C<die>
 and C<croak>, but they are easier to work with if you are trapping
@@ -438,7 +318,7 @@ see the L<Iterator> documentation.
 
 Class: C<Iterator::X::Parameter_Error>
 
-You called an Iterator::Util function with one or more bad parameters.
+You called an Iterator::Misc function with one or more bad parameters.
 Since this is almost certainly a coding error, there is probably not
 much use in handling this sort of exception.
 
@@ -489,7 +369,7 @@ L<Iterator>
 
 I<Higher Order Perl>, Mark Jason Dominus, Morgan Kauffman 2005.
 
- L<http://perl.plover.com/hop/>
+L<http://perl.plover.com/hop/>
 
 =head1 THANKS
 
@@ -508,10 +388,6 @@ To avoid my spam filter, please include "Perl", "module", or this
 module's name in the message's subject line, and/or GPG-sign your
 message.
 
-If you have suggestions for improvement, please drop me a line.  If
-you make improvements to this software, I ask that you please send me
-a copy of your changes. Thanks.
-
 =cut
 
 =begin gpg
@@ -519,9 +395,9 @@ a copy of your changes. Thanks.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Cygwin)
 
-iD8DBQFDBMDnY96i4h5M0egRAhchAJ9z5sNEgANSRLyRrgeNcDxt5aRkVQCggIa3
-Jvm4aQ41Di0TZH9f8WQJ44g=
-=0ZCf
+iD8DBQFDC5TfY96i4h5M0egRAh7SAJ94/YzLvD5YTS61IOWR2kFoupNxUQCg9U5p
+r97ZlYzjRvQl0KGIeVlUJpk=
+=EGDG
 -----END PGP SIGNATURE-----
 
 =end gpg
