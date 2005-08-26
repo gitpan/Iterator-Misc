@@ -1,6 +1,6 @@
 use strict;
 use Test::More tests => 10;
-use Iterator qw(:misc);
+use Iterator::Misc;
 
 # Check that igeometric works as promised.
 

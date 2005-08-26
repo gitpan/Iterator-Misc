@@ -1,6 +1,6 @@
 use strict;
 use Test::More tests => 8;
-use Iterator qw(:misc);
+use Iterator::Misc;
 
 # Check that ilist works as promised.
 

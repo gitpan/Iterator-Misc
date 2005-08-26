@@ -8,14 +8,14 @@ Iterator::Misc - Miscellaneous iterator functions.
 
 =head1 VERSION
 
-This documentation describes version 0.02 of Iterator::Misc, August 23, 2005.
+This documentation describes version 0.03 of Iterator::Misc, August 26, 2005.
 
 =cut
 
 use strict;
 use warnings;
 package Iterator::Misc;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use base 'Exporter';
 use vars qw/@EXPORT @EXPORT_OK %EXPORT_TAGS/;
@@ -395,9 +395,9 @@ message.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Cygwin)
 
-iD8DBQFDC5TfY96i4h5M0egRAh7SAJ94/YzLvD5YTS61IOWR2kFoupNxUQCg9U5p
-r97ZlYzjRvQl0KGIeVlUJpk=
-=EGDG
+iD8DBQFDD2FyY96i4h5M0egRAgDYAJ4xaco/BbTlPFjbNbtqxiqzRyyfaACfRY9Z
+e4Z3srTvcJbhykfOsEuFJHA=
+=V7w+
 -----END PGP SIGNATURE-----
 
 =end gpg

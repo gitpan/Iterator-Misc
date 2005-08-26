@@ -7,3 +7,7 @@ Revision history for Perl extension Iterator.
     - Fix a documentation typo.
     - Remove imesh/izip/iuniq, which were mistakenly duplicated
       here and in Iterator::Util.
+
+0.03  2005 August 26
+    - Fix several errors in the test suite (thanks, CPAN testers).
+    - Add test suites for ifibonacci, inth, irand_nth.

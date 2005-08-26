@@ -1,4 +1,4 @@
-<SOFTPKG NAME="Iterator-Misc" VERSION="0,01,0,0">
+<SOFTPKG NAME="Iterator-Misc" VERSION="0,03,0,0">
     <TITLE>Iterator-Misc</TITLE>
     <ABSTRACT>Miscellaneous iterator functions.</ABSTRACT>
     <AUTHOR>Eric Roode &lt;roode@cpan.org&gt;</AUTHOR>

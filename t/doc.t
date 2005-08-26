@@ -1,236 +1,73 @@
 use strict;
-use Test::More tests => 37;
-use Iterator qw(:all);
+use Test::More tests => 23;
+use Iterator::Misc;
 
 # Check that the documentation examples work.
 
-sub begins_with
+my ($iter, $ref, @vals);
+
+#  Permute examples (14)
+
+eval  {$iter = ipermute ('one', 'two', 'three');};
+is ($@, q{}, q{Permute example iterator created.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 1.});
+is_deeply ($ref, ['one', 'two', 'three'], q{Permute sequence 1 correct.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 2.});
+is_deeply ($ref, ['one', 'three', 'two'], q{Permute sequence 2 correct.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 3.});
+is_deeply ($ref, ['two', 'one', 'three'], q{Permute sequence 3 correct.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 4.});
+is_deeply ($ref, ['two', 'three', 'one'], q{Permute sequence 4 correct.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 5.});
+is_deeply ($ref, ['three', 'one', 'two'], q{Permute sequence 5 correct.});
+
+eval {$ref  = $iter->value()};
+is ($@, q{}, q{Permute iterator: grab sequence 6.});
+is_deeply ($ref, ['three', 'two', 'one'], q{Permute sequence 6 correct.});
+
+eval {$ref  = $iter->value()};
+ok (Iterator::X::Exhausted->caught(), q{Permute iterator is exhausted});
+
+################################################################
+
+# Geometric examples (9)
+
+eval
 {
-    my ($actual, $expected, $test_name) = @_;
-
-    $actual = substr($actual, 0, length $expected);
-    @_ =  ($actual, $expected, $test_name);
-    goto &is;
-}
-
-my ($iter, $it, $x, @vals);
-
-# from the README (13)
-
-sub upto
-{
-    my ($m, $n) = @_;
-
-    return Iterator->new( sub {
-                              return $m++  if $m <= $n;
-                              Iterator::X::Am_Now_Exhausted->throw();
-                          });
-}
+    $iter = igeometric (1, 27, 3);
+    push @vals, $iter->value for (1..4);
+};
+is ($@, q{}, q{igeometric first example created and executed});
+is_deeply(\@vals, [1, 3, 9, 27], q{igeometric 1: correct result});
+ok ($iter->is_exhausted(), q{igeometric 1: iterator is exhausted});
 
 @vals = ();
 eval
 {
-    $it = upto (3, 5);
+    $iter = igeometric (1, undef, 3);      # 1, 3, 9, 27, 81, ...
+    push @vals, $iter->value for (1..5);
 };
+is ($@, q{}, q{igeometric second example created and executed});
+is_deeply(\@vals, [1, 3, 9, 27, 81], q{igeometric 2: correct result});
+ok ($iter->isnt_exhausted(), q{igeometric 2: iterator isn't exhausted});
 
-is ($@, q{}, q{README iterator created, no exception});
-
+@vals = ();
 eval
 {
-    push @vals, $it->value;     #  returns 3
-    push @vals, $it->value;     #  returns 4
-    push @vals, $it->value;     #  returns 5
+    $iter = igeometric (10, undef, 0.1);   # 10, 1, 0.1, 0.01, ...
+    push @vals, $iter->value for (1..4);
 };
+is ($@, q{}, q{igeometric third example created and executed});
+is_deeply(\@vals, [10, 1, 0.1, 0.01], q{igeometric 3: correct result});
+ok ($iter->isnt_exhausted(), q{igeometric 3: iterator isn't exhausted});
 
-is ($@, q{}, q{README iterator; first three okay});
-is_deeply (\@vals, [3, 4, 5], q{README iterator: expected values ok});
-
-eval
-{
-    my $i = $it->value;     #  throws an Iterator::X::Exhausted exception.
-};
-
-isnt ($@, q{}, q{README iterator: exception thrown});
-ok (Iterator::X->caught(), q{README exception: correct base type});
-ok (Iterator::X::Exhausted->caught(), q{README exception: correct specific type});
-begins_with ($@, q{Iterator is exhausted}, q{README iterator exception formatted propertly.});
-
-{
-    my $another_it;
-
-    @vals = ();
-    eval
-    {
-        $another_it = upto (7, 10);
-        while ($another_it->isnt_exhausted)
-        {
-            push @vals, $another_it->value;
-        }
-        # The above [pushes] 7, 8, 9, 10 and throws no exceptions.
-    };
-
-    is ($@, q{}, q{$another_it: no exception thrown});
-    is_deeply (\@vals, [7, 8, 9, 10], q{$another_it: expected values});
-
-    eval
-    {
-        # Another call to $another_it->value would throw an exception.
-        $another_it->value
-    };
-
-    isnt ($@, q{}, q{$another_it iterator: exception thrown});
-    ok (Iterator::X->caught(), q{$another_it exception: correct base type});
-    ok (Iterator::X::Exhausted->caught(), q{$another_it exception: correct specific type});
-    begins_with ($@, q{Iterator is exhausted}, q{$another_it iterator exception formatted propertly.});
-}
-
-
-## From the POD
-
-# $evens (3);
-{
-    my $evens;
-
-    @vals = ();
-    eval
-    {
-        $evens   = imap { $_ * 2  }  irange (0);  # returns 0, 2, 4, ...
-    };
-    is ($@, q{}, q{$evens created fine});
-    eval
-    {
-        push @vals, $evens->value  for (1..3);
-    };
-    is ($@, q{}, q{$evens executed fine});
-    is_deeply(\@vals, [0, 2, 4], q{$evens returns what I said it would});
-}
-
-# $squares (3)
-{
-    my $squares;
-
-    @vals = ();
-    eval
-    {
-        $squares = imap { $_ * $_ }  irange (7);  # 49, 64, 81, 100, ...
-    };
-    is ($@, q{}, q{$squares created fine});
-    eval
-    {
-        push @vals, $squares->value  for (1..4);
-    };
-    is ($@, q{}, q{$squares created fine});
-    is_deeply(\@vals, [49, 64, 81, 100], q{$squares returns what I said it would});
-}
-
-# $fives (3)
-{
-    my $fives;
-
-    @vals = ();
-    eval
-    {
-        $fives = igrep { $_ % 5 == 0 } irange (0,10);   # returns 0, 5, 10
-    };
-    is ($@, q{}, q{$fives created fine});
-    eval
-    {
-        push @vals, $fives->value  while $fives->isnt_exhausted;
-    };
-    is ($@, q{}, q{$fives created fine});
-    is_deeply(\@vals, [0, 5, 10], q{$fives returns what I said it would});
-}
-
-# $small (3)
-{
-    my $small;
-
-    @vals = ();
-    eval
-    {
-        $small = igrep { $_ < 10 }  irange (8,12);      # returns 8, 9
-    };
-    is ($@, q{}, q{$small created fine});
-    eval
-    {
-        push @vals, $small->value  while $small->isnt_exhausted;
-    };
-    is ($@, q{}, q{$small executed fine});
-    is_deeply(\@vals, [8, 9], q{$small returns what I said it would});
-}
-
-# $iota5 (3)
-{
-    my $iota5;
-
-    @vals = ();
-    eval
-    {
-        $iota5 = ihead 5, irange 1;      # returns 1, 2, 3, 4, 5.
-    };
-    is ($@, q{}, q{$iota5 created fine});
-    eval
-    {
-        push @vals, $iota5->value  while $iota5->isnt_exhausted;
-    };
-    is ($@, q{}, q{$iota5 executed fine});
-    is_deeply(\@vals, [1, 2, 3, 4, 5], q{$iota5 returns what I said it would});
-}
-
-# ipairwise (3)
-{
-    my ($first, $second, $third);
-
-    @vals = ();
-    eval
-    {
-        no warnings 'once';
-        $first  = irange 1;                              # 1,  2,  3,  4, ...
-        $second = irange 4, undef, 2;                    # 4,  6,  8, 10, ...
-        $third  = ipairwise {$a * $b} $first, $second;   # 4, 12, 24, 40, ...
-    };
-    is ($@, q{}, q{1, 2, 3 iterators created fine});
-    eval
-    {
-        push @vals, $third->value for (1..4);
-    };
-    is ($@, q{}, q{$third executed fine});
-    is_deeply(\@vals, [4, 12, 24, 40], q{$ithird returns what I said it would});
-}
-
-# $cdr (3)
-{
-    my ($cdr);
-
-    @vals = ();
-    eval
-    {
-        my $iter = ilist (24, -1, 7, 8);        # Bunch of random values
-        $cdr  = iskip 1, $iter;              # "pop" the first value
-    };
-    is ($@, q{}, q{$cdr iterators created fine});
-    eval
-    {
-        push @vals, $cdr->value while $cdr->isnt_exhausted;
-    };
-    is ($@, q{}, q{$cdr executed fine});
-    is_deeply(\@vals, [-1, 7, 8], q{$cdr returns what I said it would});
-}
-
-# skip_until (3)
-{
-    my $iter;
-
-    @vals = ();
-    eval
-    {
-        $iter = iskip_until {$_ > 5}  irange 1;    # returns 6, 7, 8, 9, ...
-    };
-    is ($@, q{}, q{$iter iterators created fine});
-    eval
-    {
-        push @vals, $iter->value for (1..4);
-    };
-    is ($@, q{}, q{$iter executed fine});
-    is_deeply(\@vals, [6, 7, 8, 9], q{$iter returns what I said it would});
-}
